@@ -2,7 +2,10 @@
   "name": "unitestingtask",
   "version": "0.0.1",
   "description": "Unit testing task",
-
   "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
   }
 }
