@@ -2,14 +2,14 @@ const unitTestingTask = require("./unitTestingTask");
 
 describe("The language in unitTestingTask module", () => {
   test.each(["be", "cs", "kk", "pl", "ru", "tr", "tt", "uk"])(
-    "can be changed by calling lang() method with one of the supported language's shortcut",
+    "can be changed by calling lang() method with one of the supported language's shortcut (%s)",
     (language) => {
       expect(unitTestingTask.lang(language)).toEqual(language);
     }
   );
 
   test.each(["de", "fr", "no"])(
-    "will not be changed by calling lang() method with an unsupported language",
+    "will not be changed by calling lang() method with an unsupported language (%s)",
     (language) => {
       const currentLang = unitTestingTask.lang();
       expect(unitTestingTask.lang(language)).toEqual(currentLang);
@@ -19,10 +19,14 @@ describe("The language in unitTestingTask module", () => {
 
 describe("The unitTestingTask `register` method", () => {
   describe("allows to create a new formatter", () => {
-    const newFormatter = unitTestingTask.register("longDate", "d MMMM");
+    const newFormatter = unitTestingTask.register("shortDate", "d/M/YYYY");
+
+    test("which can then be used", () => {
+      expect(newFormatter(new Date(2022, 11, 1))).toEqual("1/12/2022");
+    });
 
     test("which can be found using `formatters` method", () => {
-      expect(unitTestingTask.formatters()).toContain("longDate");
+      expect(unitTestingTask.formatters()).toContain("shortDate");
     });
   });
 });
@@ -35,7 +39,7 @@ describe("The unitTestingTask function throws TypeError", () => {
   });
 
   test.each([null, true, { format: "YYYY" }, ["YYYY"]])(
-    "when `format` argument is not a string",
+    "when `format` argument is not a string (%s)",
     (format) => {
       expect(() => unitTestingTask(format)).toThrow(
         TypeError("Argument `format` must be a string")
@@ -44,7 +48,7 @@ describe("The unitTestingTask function throws TypeError", () => {
   );
 
   test.each([null, true, { date: "2022" }, [2022]])(
-    "when type of `date` argument is incorrect",
+    "when type of `date` argument is incorrect (%s)",
     (date) => {
       expect(() => unitTestingTask("YYYY", date)).toThrow(
         TypeError(
@@ -76,7 +80,7 @@ describe("The unitTestingTask function returns a correct result", () => {
         ["ISOTime", "08:00:00"],
         ["ISODateTime", "2000-01-01T08:00:00"],
         ["ISODateTimeTZ", "2000-01-01T08:00:00+00:00"],
-      ])("and with one of predefined formatters", (format, result) => {
+      ])("and with one of predefined formatters (%s)", (format, result) => {
         expect(unitTestingTask(format)).toEqual(result);
       });
 
@@ -85,7 +89,7 @@ describe("The unitTestingTask function returns a correct result", () => {
         ["D d-M hh:mm A", "Sa 1-1 08:00 AM"],
         ["DD dd MMM YY h:mm:ss.ff a Z", "Sat 01 Jan 00 8:00:00.000 am +00:00"],
         ["MM-YYYY H:m:s.f ZZ", "01-2000 8:0:0.0 +0000"],
-      ])("and with a custom format string", (format, result) => {
+      ])("and with a custom format string (%s)", (format, result) => {
         expect(unitTestingTask(format)).toEqual(result);
       });
     });
@@ -97,7 +101,7 @@ describe("The unitTestingTask function returns a correct result", () => {
         ["ISOTime", "11:59:59"],
         ["ISODateTime", "2022-12-31T11:59:59"],
         ["ISODateTimeTZ", "2022-12-31T11:59:59+00:00"],
-      ])("and with one of predefined formatters", (format, result) => {
+      ])("and with one of predefined formatters (%s)", (format, result) => {
         expect(unitTestingTask(format, date)).toEqual(result);
       });
 
@@ -106,7 +110,7 @@ describe("The unitTestingTask function returns a correct result", () => {
         ["D d-M hh:mm A", "Sa 31-12 11:59 PM"],
         ["DD dd MMM YY h:mm:ss.ff a Z", "Sat 31 Dec 22 11:59:59.000 pm +00:00"],
         ["MM-YYYY H:m:s.f ZZ", "12-2022 23:59:59.0 +0000"],
-      ])("and with a custom format string", (format, result) => {
+      ])("and with a custom format string (%s)", (format, result) => {
         expect(unitTestingTask(format, date)).toEqual(result);
       });
     });
@@ -117,9 +121,12 @@ describe("The unitTestingTask function returns a correct result", () => {
         [1115256600000, "ISOTime", "01:30:00"],
         [-304800270000, "ISODateTime", "1960-05-05T05:15:30"],
         [5, "ISODateTimeTZ", "1970-01-01T12:00:00+00:00"],
-      ])("and with one of predefined formatters", (date, format, result) => {
-        expect(unitTestingTask(format, date)).toEqual(result);
-      });
+      ])(
+        "(%s) and with one of predefined formatters (%s)",
+        (date, format, result) => {
+          expect(unitTestingTask(format, date)).toEqual(result);
+        }
+      );
 
       test.each([
         [0, "DDD d MMMM YYYY HH:mm", "Thursday 1 January 1970 00:00"],
@@ -130,9 +137,12 @@ describe("The unitTestingTask function returns a correct result", () => {
           "Thu 05 May 60 5:15:30.000 am +00:00",
         ],
         [5, "MM-YYYY H:m:s.f ZZ", "01-1970 0:0:0.5 +0000"],
-      ])("and with a custom format string", (date, format, result) => {
-        expect(unitTestingTask(format, date)).toEqual(result);
-      });
+      ])(
+        "(%s) and with a custom format string (%s)",
+        (date, format, result) => {
+          expect(unitTestingTask(format, date)).toEqual(result);
+        }
+      );
     });
 
     describe("when called with a string as a date argument", () => {
@@ -145,9 +155,12 @@ describe("The unitTestingTask function returns a correct result", () => {
           "ISODateTimeTZ",
           "2011-10-05T02:48:00+00:00",
         ],
-      ])("and with one of predefined formatters", (date, format, result) => {
-        expect(unitTestingTask(format, date)).toEqual(result);
-      });
+      ])(
+        "(%s) and with one of predefined formatters (%s)",
+        (date, format, result) => {
+          expect(unitTestingTask(format, date)).toEqual(result);
+        }
+      );
 
       test.each([
         [
@@ -166,9 +179,12 @@ describe("The unitTestingTask function returns a correct result", () => {
           "MM-YYYY H:m:s.f ZZ",
           "10-2011 14:48:0.0 +0000",
         ],
-      ])("and with a custom format string", (date, format, result) => {
-        expect(unitTestingTask(format, date)).toEqual(result);
-      });
+      ])(
+        "(%s) and with a custom format string (%s)",
+        (date, format, result) => {
+          expect(unitTestingTask(format, date)).toEqual(result);
+        }
+      );
     });
   });
 
@@ -191,7 +207,7 @@ describe("The unitTestingTask function returns a correct result", () => {
         ["DDD d MMMM YYYY HH:mm", "sobota 1 stycznia 2000 08:00"],
         ["D d-M hh:mm A", "So 1-1 08:00 rano"],
         ["DD dd MMM YY h:mm:ss.ff a Z", "sb 01 sty 00 8:00:00.000 rano +00:00"],
-      ])("and with a custom format string", (format, result) => {
+      ])("and with a custom format string (%s)", (format, result) => {
         expect(unitTestingTask(format)).toEqual(result);
       });
     });
@@ -202,7 +218,7 @@ describe("The unitTestingTask function returns a correct result", () => {
         ["DDD d MMMM YYYY HH:mm", "sobota 31 grudnia 2022 23:59"],
         ["D d-M hh:mm A", "So 31-12 11:59"],
         ["DD dd MMM YY h:mm:ss.ff a Z", "sb 31 gru 22 11:59:59.000 +00:00"],
-      ])("and with a custom format string", (format, result) => {
+      ])("and with a custom format string (%s)", (format, result) => {
         expect(unitTestingTask(format, date)).toEqual(result);
       });
     });
@@ -217,9 +233,12 @@ describe("The unitTestingTask function returns a correct result", () => {
           "czw 05 maj 60 5:15:30.000 rano +00:00",
         ],
         [5, "MMM 'YY", "sty '70"],
-      ])("and with a custom format string", (date, format, result) => {
-        expect(unitTestingTask(format, date)).toEqual(result);
-      });
+      ])(
+        "(%s) and with a custom format string (%s)",
+        (date, format, result) => {
+          expect(unitTestingTask(format, date)).toEqual(result);
+        }
+      );
     });
 
     describe("when called with a string as a date argument", () => {
@@ -236,9 +255,12 @@ describe("The unitTestingTask function returns a correct result", () => {
           "wt 12 gru 00 12:00:00.000 rano +00:00",
         ],
         ["2002-06", "MMMM YYYY", "czerwiec 2002"],
-      ])("and with a custom format string", (date, format, result) => {
-        expect(unitTestingTask(format, date)).toEqual(result);
-      });
+      ])(
+        "(%s) and with a custom format string (%s)",
+        (date, format, result) => {
+          expect(unitTestingTask(format, date)).toEqual(result);
+        }
+      );
     });
   });
 });
